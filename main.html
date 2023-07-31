@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Strength Prediction and Graph Plotting</title>
+    <script src="https://cdn.jsdelivr.net/npm/brain.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  </head>
+  <body>
+    <h1>Strength Prediction and Graph Plotting</h1>
+    <div>
+      <label for="glassPercentage">Glass Percentage:</label>
+      <input
+        type="number"
+        id="glassPercentage"
+        min="0"
+        max="100"
+        step="0.1"
+        value="20"
+      />
+      <br />
+      <label for="epsPercentage">EPS Percentage:</label>
+      <input
+        type="number"
+        id="epsPercentage"
+        min="0"
+        max="100"
+        step="0.1"
+        value="10"
+      />
+      <br />
+      <button onclick="predictAndPlot()">Predict and Plot</button>
+    </div>
+    <div style="width: 400px; height: 200px">
+      <!-- Container div with desired width and height -->
+      <canvas id="strengthChart" width="400" height="200"></canvas>
+    </div>
+    <script>
+      // Sample dataset of partially replaced glass concrete with curing days (replace with your actual data)
+      let dataset = [
+        {
+          input: { glassPercentage: 0, epsPercentage: 0, curingDays: 7 },
+          output: { strength: 14 },
+        },
+        {
+          input: { glassPercentage: 0, epsPercentage: 0, curingDays: 14 },
+          output: { strength: 15 },
+        },
+        {
+          input: { glassPercentage: 0, epsPercentage: 0, curingDays: 21 },
+          output: { strength: 18.45 },
+        },
+        {
+          input: { glassPercentage: 0, epsPercentage: 0, curingDays: 28 },
+          output: { strength: 19 },
+        },
+        {
+          input: { glassPercentage: 0, epsPercentage: 0, curingDays: 7 },
+          output: { strength: 25 },
+        },
+        {
+          input: { glassPercentage: 0, epsPercentage: 0.05, curingDays: 7 },
+          output: { strength: 8.5 },
+        },
+        {
+          input: { glassPercentage: 0, epsPercentage: 0.05, curingDays: 14 },
+          output: { strength: 11 },
+        },
+        {
+          input: { glassPercentage: 0, epsPercentage: 0.05, curingDays: 21 },
+          output: { strength: 12 },
+        },
+        {
+          input: { glassPercentage: 0, epsPercentage: 0.05, curingDays: 28 },
+          output: { strength: 12.25 },
+        },
+        {
+          input: { glassPercentage: 0.25, epsPercentage: 0, curingDays: 7 },
+          output: { strength: 13 },
+        },
+        {
+          input: { glassPercentage: 0.25, epsPercentage: 0, curingDays: 14 },
+          output: { strength: 16.75 },
+        },
+        {
+          input: { glassPercentage: 0.25, epsPercentage: 0, curingDays: 21 },
+          output: { strength: 19.25 },
+        },
+        {
+          input: { glassPercentage: 0.25, epsPercentage: 0, curingDays: 28 },
+          output: { strength: 20 },
+        },
+        {
+          input: { glassPercentage: 0.75, epsPercentage: 0, curingDays: 7 },
+          output: { strength: 10.75 },
+        },
+        {
+          input: { glassPercentage: 0.75, epsPercentage: 0, curingDays: 14 },
+          output: { strength: 12.5 },
+        },
+        {
+          input: { glassPercentage: 0.75, epsPercentage: 0, curingDays: 21 },
+          output: { strength: 11.75 },
+        },
+        {
+          input: { glassPercentage: 0.75, epsPercentage: 0, curingDays: 28 },
+          output: { strength: 13.25 },
+        },
+        {
+          input: { glassPercentage: 0.2, epsPercentage: 0.05, curingDays: 7 },
+          output: { strength: 6.5 },
+        },
+
+        {
+          input: { glassPercentage: 0.2, epsPercentage: 0.05, curingDays: 14 },
+          output: { strength: 9 },
+        },
+
+        {
+          input: { glassPercentage: 0.2, epsPercentage: 0.05, curingDays: 21 },
+          output: { strength: 7.95 },
+        },
+
+        {
+          input: { glassPercentage: 0.2, epsPercentage: 0.05, curingDays: 28 },
+          output: { strength: 10.25 },
+        },
+        {
+          input: { glassPercentage: 0, epsPercentage: 0, curingDays: 7 },
+          output: { strength: 13.5 },
+        },
+        {
+          input: { glassPercentage: 0, epsPercentage: 0, curingDays: 14 },
+          output: { strength: 15.5 },
+        },
+        {
+          input: { glassPercentage: 0, epsPercentage: 0, curingDays: 21 },
+          output: { strength: 18 },
+        },
+        {
+          input: { glassPercentage: 0, epsPercentage: 0, curingDays: 28 },
+          output: { strength: 18.5 },
+        },
+        {
+          input: { glassPercentage: 0, epsPercentage: 0, curingDays: 7 },
+          output: { strength: 25.2 },
+        },
+        {
+          input: { glassPercentage: 0, epsPercentage: 0.05, curingDays: 7 },
+          output: { strength: 8.9 },
+        },
+        {
+          input: { glassPercentage: 0, epsPercentage: 0.05, curingDays: 14 },
+          output: { strength: 10.2 },
+        },
+        {
+          input: { glassPercentage: 0, epsPercentage: 0.05, curingDays: 21 },
+          output: { strength: 12.9 },
+        },
+        {
+          input: { glassPercentage: 0, epsPercentage: 0.05, curingDays: 28 },
+          output: { strength: 12.29 },
+        },
+        {
+          input: { glassPercentage: 0.25, epsPercentage: 0, curingDays: 7 },
+          output: { strength: 12 },
+        },
+        {
+          input: { glassPercentage: 0.25, epsPercentage: 0, curingDays: 14 },
+          output: { strength: 16.72 },
+        },
+        {
+          input: { glassPercentage: 0.25, epsPercentage: 0, curingDays: 21 },
+          output: { strength: 19.21 },
+        },
+        {
+          input: { glassPercentage: 0.25, epsPercentage: 0, curingDays: 28 },
+          output: { strength: 19.2 },
+        },
+        {
+          input: { glassPercentage: 0.75, epsPercentage: 0, curingDays: 7 },
+          output: { strength: 10 },
+        },
+        {
+          input: { glassPercentage: 0.75, epsPercentage: 0, curingDays: 14 },
+          output: { strength: 12 },
+        },
+        {
+          input: { glassPercentage: 0.75, epsPercentage: 0, curingDays: 21 },
+          output: { strength: 13.2 },
+        },
+        {
+          input: { glassPercentage: 0.75, epsPercentage: 0, curingDays: 28 },
+          output: { strength: 13.9 },
+        },
+        {
+          input: { glassPercentage: 0.2, epsPercentage: 0.05, curingDays: 7 },
+          output: { strength: 5.1 },
+        },
+
+        {
+          input: { glassPercentage: 0.2, epsPercentage: 0.05, curingDays: 14 },
+          output: { strength: 9.5 },
+        },
+
+        {
+          input: { glassPercentage: 0.2, epsPercentage: 0.05, curingDays: 21 },
+          output: { strength: 7.9 },
+        },
+
+        {
+          input: { glassPercentage: 0.2, epsPercentage: 0.05, curingDays: 28 },
+          output: { strength: 10.9 },
+        },
+
+        // Add more data entries here...
+      ];
+
+      // Data preprocessing
+      const normalizedDataset = normalizeDataset(dataset);
+
+      // Create a neural network
+      let net = new brain.NeuralNetwork();
+
+      // Train the neural network
+      net.train(normalizedDataset, {
+        log: true, // Set to true for logging training progress
+        iterations: 1000, // Number of training iterations
+        errorThresh: 0.005, // Acceptable error threshold
+      });
+
+      // Function to normalize the dataset between 0 and 1
+      function normalizeDataset(dataset) {
+        const normalized = dataset.map(({ input, output }) => ({
+          input: {
+            glassPercentage: input.glassPercentage / 100, // Normalize between 0 and 1
+            epsPercentage: input.epsPercentage / 100, // Normalize between 0 and 1
+            curingDays: input.curingDays / 365, // Normalize between 0 and 1 (assuming maximum 365 days of curing)
+          },
+          output: {
+            strength: output.strength / 100, // Normalize between 0 and 1
+          },
+        }));
+        return normalized;
+      }
+
+      // Function to denormalize the output value back to its original scale
+      function denormalizeOutput(output) {
+        return output.strength * 100; // Denormalize to the original scale
+      }
+
+      // Function to predict strength for given glassPercentage and epsPercentage
+      function predictStrength(glassPercentage, epsPercentage, curingDays) {
+        const input = {
+          glassPercentage: glassPercentage / 100, // Normalize between 0 and 1
+          epsPercentage: epsPercentage / 100, // Normalize between 0 and 1
+        };
+        const normalizedOutput = net.run(input);
+        const strength = denormalizeOutput(normalizedOutput);
+        return strength;
+      }
+
+      // Create the chart object
+      const ctx = document.getElementById("strengthChart").getContext("2d");
+      let myChart = new Chart(ctx, {
+        type: "line", // Use line chart for specific curing days
+        data: {
+          labels: [],
+          datasets: [
+            {
+              label: "Strength vs. Curing Days",
+              data: [],
+              borderColor: "rgba(75, 192, 192, 1)",
+              borderWidth: 2,
+              fill: false,
+            },
+          ],
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          scales: {
+            x: {
+              title: {
+                display: true,
+                text: "Curing Days",
+              },
+            },
+            y: {
+              title: {
+                display: true,
+                text: "Strength (MPa)",
+              },
+            },
+          },
+        },
+      });
+
+      // Function to predict and plot the graph
+      function predictAndPlot() {
+        const glassPercentageToPredict = parseFloat(
+          document.getElementById("glassPercentage").value
+        );
+        const epsPercentageToPredict = parseFloat(
+          document.getElementById("epsPercentage").value
+        );
+
+        const curingDays = [7, 14, 21, 28]; // Specific curing days to plot
+
+        const newPredictions = curingDays.map((days) => {
+          const predictedStrength = predictStrength(
+            glassPercentageToPredict,
+            epsPercentageToPredict,
+            days
+          );
+          return {
+            input: {
+              glassPercentage: glassPercentageToPredict,
+              epsPercentage: epsPercentageToPredict,
+              curingDays: days,
+            },
+            output: { strength: predictedStrength },
+          };
+        });
+
+        // Update the dataset with new predictions
+        dataset = dataset.concat(newPredictions);
+
+        // Update the neural network with the updated dataset
+        net = new brain.NeuralNetwork();
+        net.train(normalizeDataset(dataset));
+
+        // Update the chart data
+        const curingDaysLabels = curingDays.map((days) => `${days} days`);
+        const strengthData = dataset.map((data) =>
+          denormalizeOutput(net.run(data.input))
+        );
+        myChart.data.labels = curingDaysLabels;
+        myChart.data.datasets[0].data = strengthData;
+        myChart.update();
+      }
+    </script>
+  </body>
+</html>
